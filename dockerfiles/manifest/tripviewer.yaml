@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tripinsights-tripviewer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tripviewer
+  template:
+    metadata:
+      labels:
+        app: tripviewer
+    spec:
+      containers:
+        - name: tripviewer
+          image: registrynhj5026.azurecr.io/tripinsights/tripviewer:1.0
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "1000m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          ports:
+            - containerPort: 80
+              name: http
+          env:
+            - name: USERPROFILE_API_ENDPOINT
+              value: http://10.244.2.17:80
+            - name: TRIPS_API_ENDPOINT
+              value: http://10.244.1.9:80
+          livenessProbe:
+            httpGet:
+              path: http://localhost:80/
+              port: 80
+            initialDelaySeconds: 60
+            periodSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tripviewer-service
+spec:
+  selector:
+    app: tripviewer
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
