@@ -44,10 +44,17 @@ ARG IMAGE_CREATE_DATE
 ARG IMAGE_VERSION
 ARG IMAGE_SOURCE_REVISION
 
+<<<<<<< HEAD
 ENV SQL_USER="SA" \
     SQL_PASSWORD="MySQLPassword1" \
     SQL_SERVER="172.18.0.2,1433" \
     SQL_DBNAME="mydrivingDB" \
+=======
+ENV SQL_USER="sa" \
+    SQL_PASSWORD="Password123!" \
+    SQL_SERVER="172.23.0.2,1433" \
+    SQL_DBNAME="mydrivingDB01" \
+>>>>>>> e8a1cc72bafaa0a94ac3904ed41f770e813f23ee
     WEB_PORT=80 \
     WEB_SERVER_BASE_URI="http://0.0.0.0" \
     ASPNETCORE_ENVIRONMENT="Local" \
