@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: tripinsights-trips
-  namespace: api-dev
+  namespace: api
 spec:
   replicas: 1
   selector:
@@ -14,43 +14,44 @@ spec:
         app: trips
     spec:
       containers:
-        - name: trips
-          image: registrynhj5026.azurecr.io/tripinsights/trips:1.0
-          resources:
-            requests:
-              memory: "1Gi"
-              cpu: "500m"
-            limits:
-              memory: "1Gi"
-              cpu: "500m"
-          ports:
-            - containerPort: 80
-              name: http
-          env:
-            - name: OPENAPI_DOCS_URI
-              value: http://localhost
-            - name: SQL_SERVER
-              value: sqlservernhj5026.database.windows.net
-            - name: SQL_USER
-              value: sqladminnHj5026
-            - name: SQL_DBNAME
-              value: mydrivingDB
-            - name: SQL_PASSWORD # the application expects to find the SQL connection password in this environment variable
-              valueFrom:
-                secretKeyRef:
-                  name: mssql # the name of the Kubernetes secret containing the data
-                  key: password # the key inside the Kubernetes secret containing the data
-          livenessProbe:
-            httpGet:
-              path: /api/trips/healthcheck
-              port: 80
-            initialDelaySeconds: 30
-            periodSeconds: 15
+      - name: trips
+        image: registrynhj5026.azurecr.io/tripinsights/trips:1.0
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        ports:
+        - containerPort: 80
+          name: http
+        env:
+          - name: OPENAPI_DOCS_URI
+            value: http://localhost
+          - name: SQL_SERVER
+            value: sqlservernhj5026.database.windows.net
+          - name: SQL_USER
+            value: sqladminnHj5026
+          - name: SQL_DBNAME
+            value: mydrivingDB
+          - name: SQL_PASSWORD # the application expects to find the SQL connection password in this environment variable
+            valueFrom:
+              secretKeyRef:
+                name: mssql # the name of the Kubernetes secret containing the data
+                key: password # the key inside the Kubernetes secret containing the data
+        livenessProbe:
+          httpGet:
+            path: /api/trips/healthcheck
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 15        
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: trips-service
+  namespace: api
 spec:
   selector:
     app: trips
@@ -58,3 +59,4 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 80
+  type: LoadBalancer

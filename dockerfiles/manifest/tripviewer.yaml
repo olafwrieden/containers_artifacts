@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: tripinsights-tripviewer
-  namespace: web-dev
+  namespace: web
 spec:
   replicas: 1
   selector:
@@ -19,7 +19,7 @@ spec:
           resources:
             requests:
               memory: "1Gi"
-              cpu: "1000m"
+              cpu: "500m"
             limits:
               memory: "1Gi"
               cpu: "1000m"
@@ -28,9 +28,9 @@ spec:
               name: http
           env:
             - name: USERPROFILE_API_ENDPOINT
-              value: http://10.244.2.17:80
+              value: http://10.0.86.241:80
             - name: TRIPS_API_ENDPOINT
-              value: http://10.244.1.9:80
+              value: http://10.0.178.214:80
           livenessProbe:
             httpGet:
               path: http://localhost:80/
@@ -42,6 +42,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: tripviewer-service
+  namespace: web
 spec:
   selector:
     app: tripviewer
@@ -49,29 +50,4 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 80
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: tripviewer-web-ingress
-  annotations:
-    kubernetes.io/ingress.class: nginx
-spec:
-  rules:
-    - host: frontend.168.63.136.103.nip.io
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: tripviewer-service
-                port:
-                  number: 80
-          - path: /api/user-java/healthcheck
-            pathType: Prefix
-            backend:
-              service:
-                name: userjava-service
-                port:
-                  number: 80
+  type: LoadBalancer
