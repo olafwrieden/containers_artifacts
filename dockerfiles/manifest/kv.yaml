@@ -1,0 +1,18 @@
+apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
+kind: SecretProviderClass
+metadata:
+  name: aks-openhack-kv
+spec:
+  provider: azure
+  parameters:
+    keyvaultName: "aks-openhack-kv"       # The name of the Azure Key Vault
+    useVMManagedIdentity: "true"         
+    userAssignedIdentityID: "33a191aa-46a5-4692-9cbb-bce9287e8084" # The clientId of the addon-created managed identity
+    cloudName: ""                         # [OPTIONAL for Azure] if not provided, Azure environment will default to AzurePublicCloud 
+    objects:  |
+      array:
+        - |
+          objectName: SQL-PASSWORD       # In this example, 'ExampleSecret'   
+          objectType: secret              # Object types: secret, key or cert
+          objectVersion: ""               # [OPTIONAL] object versions, default to latest if empty
+    tenantId: "51d7f0e4-3c35-4a77-bc87-1d670bacd388"               # the tenant ID containing the Azure Key Vault instance

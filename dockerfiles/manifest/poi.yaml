@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: tripinsights-poi
+  namespace: api
 spec:
   replicas: 1
   selector:
@@ -18,13 +19,17 @@ spec:
         resources:
           requests:
             memory: "1Gi"
-            cpu: "500m"
+            cpu: "250m"
           limits:
             memory: "1Gi"
-            cpu: "500m"
+            cpu: "1000m"
         ports:
         - containerPort: 80
           name: http
+        volumeMounts:
+        - name: secrets-store-inline
+          mountPath: "/mnt/secrets-store"
+          readOnly: true
         env:
           - name: ASPNETCORE_ENVIRONMENT
             value: Production
@@ -34,22 +39,27 @@ spec:
             value: sqladminnHj5026
           - name: SQL_DBNAME
             value: mydrivingDB
-          - name: SQL_PASSWORD # the application expects to find the SQL connection password in this environment variable
-            valueFrom:
-              secretKeyRef:
-                name: mssql # the name of the Kubernetes secret containing the data
-                key: password # the key inside the Kubernetes secret containing the data
+          - name: CONFIG_FILES_PATH
+            value: /mnt/secrets-store
         livenessProbe:
           httpGet:
             path: /api/poi/healthcheck
             port: 80
           initialDelaySeconds: 30
-          periodSeconds: 15        
+          periodSeconds: 15     
+      volumes:
+      - name: secrets-store-inline
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: "aks-openhack-kv"
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: poi-service
+  namespace: api
 spec:
   selector:
     app: poi
