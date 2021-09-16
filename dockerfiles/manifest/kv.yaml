@@ -2,6 +2,7 @@ apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
 kind: SecretProviderClass
 metadata:
   name: aks-openhack-kv
+  namespace: api
 spec:
   provider: azure
   parameters:
@@ -12,7 +13,13 @@ spec:
     objects:  |
       array:
         - |
-          objectName: SQL-PASSWORD       # In this example, 'ExampleSecret'   
+          objectName: SQL-PASSWORD       # In this example, 'ExampleSecret' 
+          objectAlias: SQL_PASSWORD         # [OPTIONAL available for version > 0.0.4] object alias  
           objectType: secret              # Object types: secret, key or cert
           objectVersion: ""               # [OPTIONAL] object versions, default to latest if empty
+        - |
+          objectName: sqlpassword       # In this example, 'ExampleSecret' 
+          objectAlias: sqlpassword          # [OPTIONAL available for version > 0.0.4] object alias  
+          objectType: secret              # Object types: secret, key or cert
+          objectVersion: ""               # [OPTIONAL] object versions, default to latest if empty  
     tenantId: "51d7f0e4-3c35-4a77-bc87-1d670bacd388"               # the tenant ID containing the Azure Key Vault instance
